@@ -1,3 +1,8 @@
+import bgCrispyChicken from '../assets/images/bg_crispy_chicken_1793300412213.jpg';
+import showcaseFriedChicken from '../assets/images/showcase_fried_chicken_1793300413323.jpg';
+import showcaseGourmetBurger from '../assets/images/showcase_gourmet_burger_1793300413977.jpg';
+import showcaseMacCheese from '../assets/images/showcase_mac_cheese_1793300414115.jpg';
+
 export interface ItemSizeOption {
   id: string;
   name: string;
@@ -34,10 +39,10 @@ export const RESTAURANT_INFO = {
   facebookUrl: 'https://www.facebook.com/share/19otzT6Gyj/',
   defaultDeliveryFee: 20,
   logoUrl: '/assets/aistudio/logo_transparent.png',
-  heroBgUrl: '/src/assets/images/bg_crispy_chicken_1793300412213.jpg',
-  friedChickenImg: '/src/assets/images/showcase_fried_chicken_1793300413323.jpg',
-  burgerImg: '/src/assets/images/showcase_gourmet_burger_1793300413977.jpg',
-  macCheeseImg: '/src/assets/images/showcase_mac_cheese_1793300414115.jpg'
+  heroBgUrl: bgCrispyChicken,
+  friedChickenImg: showcaseFriedChicken,
+  burgerImg: showcaseGourmetBurger,
+  macCheeseImg: showcaseMacCheese
 };
 
 export const MENU_CATEGORIES: MenuCategory[] = [
@@ -46,28 +51,28 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     title: 'وجبات الكرسبي',
     subtitle: 'قطع كرسبي ذهبية بتتبيلة A1 السرية المقرمشة',
     icon: '🍗',
-    image: '/src/assets/images/showcase_fried_chicken_1793300413323.jpg'
+    image: showcaseFriedChicken
   },
   {
     id: 'chicken-meals',
     title: 'وجبات الدجاج',
     subtitle: 'وجبات مشبعة كاملة مع البطاطس والخبز والكول سلو',
     icon: '🍗',
-    image: '/src/assets/images/showcase_fried_chicken_1793300413323.jpg'
+    image: showcaseFriedChicken
   },
   {
     id: 'burgers-sandwiches',
     title: 'ساندوتشات البرجر والدجاج',
     subtitle: 'ساندوتشات عملاقة بخلطات A1 المبتكرة والجبن السايح',
     icon: '🍔',
-    image: '/src/assets/images/showcase_gourmet_burger_1793300413977.jpg'
+    image: showcaseGourmetBurger
   },
   {
     id: 'mac-and-cheese',
     title: 'ماك آند تشيز',
     subtitle: 'مكرونة غارقة في صوص الجبن الغني ولمسات الشيتوس',
     icon: '🧀',
-    image: '/src/assets/images/showcase_mac_cheese_1793300414115.jpg'
+    image: showcaseMacCheese
   },
   {
     id: 'appetizers',

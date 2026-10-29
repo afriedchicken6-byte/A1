@@ -30,12 +30,11 @@ import {
   orderBy,
   onSnapshot,
   doc,
+  setDoc,
   updateDoc,
-  serverTimestamp,
-  handleFirestoreError,
-  OperationType
+  serverTimestamp
 } from '../lib/firebase';
-import { getCairoDateString } from '../services/orderService';
+import { getCairoDateString, getCustomerWhatsAppUrl } from '../services/orderService';
 import { RESTAURANT_INFO } from '../data/menuData';
 
 interface AdminDashboardProps {
@@ -85,6 +84,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [feeSavedMessage, setFeeSavedMessage] = useState<boolean>(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
 
   const todayCairo = getCairoDateString();
 
@@ -115,9 +115,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           // Sort by orderNumber descending (newest on top)
           list.sort((a, b) => (b.orderNumber || 0) - (a.orderNumber || 0));
           setOrders(list);
+          setAdminError(null);
         },
         (error) => {
           console.error('Snapshot error for orders:', error);
+          setAdminError(
+            'تعذر تحميل الطلبات. تأكد أنك سجلت الدخول بحساب المدير المعتمد وأن اتصال الإنترنت يعمل.'
+          );
         }
       );
 
@@ -151,16 +155,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       });
     } catch (error) {
       console.error('Failed to update status:', error);
-      handleFirestoreError(error, OperationType.UPDATE, `orders/${orderId}`);
+      setAdminError('تعذر تحديث حالة الطلب، حاول مرة أخرى.');
     } finally {
       setIsUpdatingStatus(null);
     }
   };
 
-  const handleSaveDeliveryFee = () => {
-    onUpdateDeliveryFee(editingFee);
-    setFeeSavedMessage(true);
-    setTimeout(() => setFeeSavedMessage(false), 3000);
+  const handleSaveDeliveryFee = async () => {
+    setAdminError(null);
+    try {
+      // Persist to Firestore so every customer sees the new fee (App.tsx listens to settings/restaurant)
+      await setDoc(
+        doc(db, 'settings', 'restaurant'),
+        { deliveryFee: editingFee, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      onUpdateDeliveryFee(editingFee);
+      setFeeSavedMessage(true);
+      setTimeout(() => setFeeSavedMessage(false), 3000);
+    } catch (error) {
+      console.error('Failed to save delivery fee:', error);
+      setAdminError('تعذر حفظ رسوم التوصيل. تأكد من صلاحيات المدير ثم حاول مرة أخرى.');
+    }
   };
 
   // KPIs
@@ -278,6 +294,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-8 py-6 space-y-6">
+        {adminError && (
+          <div className="p-3 rounded-xl bg-red-950/60 border border-red-800 text-red-200 text-xs flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+            <span>{adminError}</span>
+          </div>
+        )}
+
         {/* KPI Summary Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           {/* Card 1: Total Orders */}
@@ -474,7 +497,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </a>
 
                         <a
-                          href={`https://wa.me/2${order.customerPhone.replace(/^0/, '')}`}
+                          href={getCustomerWhatsAppUrl(order.customerPhone)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-[#25D366] hover:text-white bg-[#25D366]/10 border border-[#25D366]/20 px-2 py-1 rounded-lg text-[11px]"

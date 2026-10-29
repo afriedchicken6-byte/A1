@@ -63,7 +63,7 @@ export const ProductBottomSheet: React.FC<ProductBottomSheetProps> = ({
   };
 
   const handleConfirm = () => {
-    const cartItemId = `${item.id}_${selectedOption ? selectedOption.id : 'base'}_${notes.trim()}_${selectedSauces.sort().join('-')}`;
+    const cartItemId = `${item.id}_${selectedOption ? selectedOption.id : 'base'}_${notes.trim()}_${[...selectedSauces].sort().join('-')}`;
 
     const newCartItem: CartItem = {
       cartItemId,

@@ -37,6 +37,7 @@ export default function App() {
   const [deliveryFee, setDeliveryFee] = useState<number>(RESTAURANT_INFO.defaultDeliveryFee);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [showBackToTop, setShowBackToTop] = useState<boolean>(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Success modal state
   const [successOrderData, setSuccessOrderData] = useState<{
@@ -69,18 +70,31 @@ export default function App() {
   useEffect(() => {
     try {
       const settingsRef = doc(db, 'settings', 'restaurant');
-      const unsubscribe = onSnapshot(settingsRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (typeof data.deliveryFee === 'number') {
-            setDeliveryFee(data.deliveryFee);
+      const unsubscribe = onSnapshot(
+        settingsRef,
+        (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (typeof data.deliveryFee === 'number') {
+              setDeliveryFee(data.deliveryFee);
+            }
           }
+        },
+        (error) => {
+          // Keep the default fee if settings can't be read
+          console.warn('Settings listener error:', error);
         }
-      });
+      );
       return () => unsubscribe();
     } catch (err) {
       console.warn('Could not subscribe to settings:', err);
     }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
   }, []);
 
   // Track scroll for active category & back to top button
@@ -113,7 +127,8 @@ export default function App() {
   // Toast notification helper
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => {
       setToastMessage(null);
     }, 2400);
   };

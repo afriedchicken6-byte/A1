@@ -24,10 +24,37 @@ export function getCairoDateString(): string {
   } catch {
     // Fallback if Intl format fails
     const now = new Date();
-    const utcHours = now.getUTCHours() + 2; // Cairo is UTC+2 / UTC+3
-    const cairoDate = new Date(now.getTime() + (utcHours * 60 * 60 * 1000));
+    // Cairo is UTC+2 (UTC+3 during DST); shift by the offset in milliseconds
+    const cairoDate = new Date(now.getTime() + 2 * 60 * 60 * 1000);
     return cairoDate.toISOString().split('T')[0];
   }
+}
+
+/**
+ * Normalizes an Egyptian mobile number to local 11-digit form (01XXXXXXXXX).
+ * Accepts Arabic-Indic digits, spaces/dashes, and +20 / 0020 / 20 prefixes.
+ * Returns null when the result is not a valid Egyptian mobile number.
+ */
+export function normalizeEgyptPhone(raw: string): string | null {
+  const digits = raw
+    .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/\D/g, '');
+
+  let local = digits;
+  if (local.startsWith('0020')) local = '0' + local.slice(4);
+  else if (local.startsWith('20') && local.length === 12) local = '0' + local.slice(2);
+
+  return /^01[0125]\d{8}$/.test(local) ? local : null;
+}
+
+/**
+ * Builds a wa.me link for a customer's local Egyptian number (country code 20).
+ */
+export function getCustomerWhatsAppUrl(localPhone: string): string {
+  const normalized = normalizeEgyptPhone(localPhone);
+  const intl = normalized ? `20${normalized.slice(1)}` : localPhone.replace(/\D/g, '');
+  return `https://wa.me/${intl}`;
 }
 
 /**

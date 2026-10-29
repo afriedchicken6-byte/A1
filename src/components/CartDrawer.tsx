@@ -12,7 +12,12 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { CartItem } from '../data/menuData';
-import { submitOrderWithDailyCounter, buildWhatsAppMessage, getWhatsAppUrl } from '../services/orderService';
+import {
+  submitOrderWithDailyCounter,
+  buildWhatsAppMessage,
+  getWhatsAppUrl,
+  normalizeEgyptPhone
+} from '../services/orderService';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -70,8 +75,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
       return;
     }
 
-    const cleanPhone = customerPhone.replace(/\s+/g, '');
-    if (!cleanPhone || cleanPhone.length < 10) {
+    const cleanPhone = normalizeEgyptPhone(customerPhone);
+    if (!cleanPhone) {
       setValidationError('يرجى كتابة رقم موبايل مصري صحيح للتواصل (مثال: 01012345678).');
       return;
     }
