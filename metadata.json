@@ -1,0 +1,6 @@
+{
+  "name": "A1 Burger — Best Fried Chicken",
+  "description": "منيو إلكتروني فخم لمطعم A1 برجر وفرايد تشيكن، طلب فوري ومباشر عبر واتساب مع ترقيم يومي تسلسلي ولوحة تحكم.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

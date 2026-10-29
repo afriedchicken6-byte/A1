@@ -1,0 +1,128 @@
+{
+  "entities": {
+    "DailyCounter": {
+      "title": "DailyCounter",
+      "description": "Atomic daily order counter reset every day at midnight Africa/Cairo time",
+      "type": "object",
+      "properties": {
+        "dateString": {
+          "type": "string",
+          "description": "Date string in format YYYY-MM-DD"
+        },
+        "lastOrderNumber": {
+          "type": "number",
+          "description": "Current sequential order number for the day"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of the last increment"
+        }
+      },
+      "required": ["dateString", "lastOrderNumber"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer order details and status",
+      "type": "object",
+      "properties": {
+        "orderNumber": {
+          "type": "number",
+          "description": "Daily sequence number e.g. 1, 2, 3..."
+        },
+        "dateString": {
+          "type": "string",
+          "description": "Date in YYYY-MM-DD"
+        },
+        "orderType": {
+          "type": "string",
+          "enum": ["takeaway", "delivery"],
+          "description": "Order type: takeaway or delivery"
+        },
+        "customer": {
+          "type": "object",
+          "description": "Customer contact and delivery details"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered items with size and options"
+        },
+        "deliveryFee": {
+          "type": "number",
+          "description": "Delivery fee in EGP"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total amount in EGP"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["new", "preparing", "completed", "cancelled"],
+          "description": "Status of the order"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp or server timestamp"
+        }
+      },
+      "required": ["orderNumber", "dateString", "orderType", "items", "totalAmount", "status"]
+    },
+    "RestaurantSettings": {
+      "title": "RestaurantSettings",
+      "description": "Global restaurant configurations such as delivery fee",
+      "type": "object",
+      "properties": {
+        "deliveryFee": {
+          "type": "number",
+          "description": "Delivery fee in EGP"
+        },
+        "isOpen": {
+          "type": "boolean",
+          "description": "Whether the restaurant is accepting orders"
+        }
+      },
+      "required": ["deliveryFee", "isOpen"]
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Whitelisted administrator record",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Admin email address"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role string e.g. owner or manager"
+        }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/daily_counters/{dateString}": {
+      "schema": {
+        "$ref": "#/entities/DailyCounter"
+      },
+      "description": "Daily counter documents for atomic order incrementing"
+    },
+    "/orders/{orderId}": {
+      "schema": {
+        "$ref": "#/entities/Order"
+      },
+      "description": "Collection of customer orders"
+    },
+    "/settings/{settingId}": {
+      "schema": {
+        "$ref": "#/entities/RestaurantSettings"
+      },
+      "description": "System settings such as restaurant delivery fee"
+    },
+    "/admins/{userId}": {
+      "schema": {
+        "$ref": "#/entities/AdminUser"
+      },
+      "description": "Authorized administrators for management dashboard"
+    }
+  }
+}
